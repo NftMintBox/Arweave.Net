@@ -1,9 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Arweave.NET.Lib
 {
@@ -34,24 +31,34 @@ namespace Arweave.NET.Lib
 
 		#endregion
 
-		//public static byte[] ToByteArray(this int note, int noteSize)
-		//{
-		//	byte[] buffer = new byte[noteSize];
-
-		//	for (var i = buffer.Length - 1; i >= 0; i--)
-		//	{
-		//		var b = note % 256;
-		//		buffer[i] = (byte)b;
-		//		note = (note - b) / 256;
-		//	}
-		//	return buffer;
-		//}
-
 		public static byte[] ToBase64UrlEncodedByteArray(this string? val)
 		{
 			if (string.IsNullOrEmpty(val)) return Array.Empty<byte>();
 
 			return Encoding.UTF8.GetBytes(Base64UrlEncoder.Encode(val));
 		}
+
+		#region JsonWebKey
+
+		internal static RSAParameters ToRSAParameters(this JsonWebKey jwk)
+		{
+			RSAParameters rsaParameters = new RSAParameters
+			{
+				D = Base64UrlEncoder.DecodeBytes(jwk.D),
+				DP = Base64UrlEncoder.DecodeBytes(jwk.DP),
+				DQ = Base64UrlEncoder.DecodeBytes(jwk.DQ),
+				P = Base64UrlEncoder.DecodeBytes(jwk.P),
+				Q = Base64UrlEncoder.DecodeBytes(jwk.Q),
+				Exponent = Base64UrlEncoder.DecodeBytes(jwk.E),
+				Modulus = Base64UrlEncoder.DecodeBytes(jwk.N),
+				InverseQ = Base64UrlEncoder.DecodeBytes(jwk.QI)
+			};
+
+			return rsaParameters;
+		}
+
+
+
+		#endregion
 	}
 }

@@ -116,7 +116,7 @@ namespace Arweave.NET.Lib
 		{
 			byte[] data = Utils.CombineArrays(arrays);	
 
-			return Arweave.Crypto.Hash(data);
+			return ArweaveFactory.Crypto.Hash(data);
 			//return (byte[])h.Clone();
 		}
 		private static List<Chunk> ChunkData(byte[] data)
@@ -140,7 +140,7 @@ namespace Arweave.NET.Lib
 				}
 
 				byte[] chunk = rest.Take(new Range(0, chunkSize)).ToArray();
-				byte[] dataHash = Arweave.Crypto.Hash(chunk);
+				byte[] dataHash = ArweaveFactory.Crypto.Hash(chunk);
 				
 				cursor += chunk.Length;
 
@@ -155,7 +155,7 @@ namespace Arweave.NET.Lib
 
 			chunks.Add(
 				new Chunk (
-					Arweave.Crypto.Hash(rest),
+					ArweaveFactory.Crypto.Hash(rest),
 					cursor,
 					cursor + rest.Length
 				)
@@ -304,7 +304,7 @@ namespace Arweave.NET.Lib
 		{
 			byte[] concat = Utils.CombineArrays(data);
 
-			return Arweave.Crypto.Hash(concat);
+			return ArweaveFactory.Crypto.Hash(concat);
 		}
 
 		private static byte[] IntToBuffer(int note)

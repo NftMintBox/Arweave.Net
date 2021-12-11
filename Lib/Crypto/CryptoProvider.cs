@@ -1,44 +1,39 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Arweave.NET.Lib.Crypto
 {
-	
+
 	public enum HashAlorithm { SHA256, SHA384 }
 	public class CryptoProvider : ICryptoInterface
 	{
 		public readonly int keyLength = 4096;
 		public readonly int publicExponent = 0x10001; //65537
-													  //public readonly string hashAlgorithm = "sha256";
-		public readonly string encryptionAlgorithm = "aes-256-cbc";
 
+		public readonly string encryptionAlgorithm = "aes-256-cbc";
+		
 		public JsonWebKey GenerateJWK()
 		{
 			using (RSA rsa = RSA.Create(keyLength))
 			{
 				RSAParameters rsaKeyInfo = rsa.ExportParameters(true);
+				
+				var key = new RsaSecurityKey(rsaKeyInfo);
 
-				byte[] pk = rsa.ExportRSAPublicKey();
-				byte[] prk = rsa.ExportRSAPrivateKey();
+				JsonWebKey jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(key);
 
-
-				JsonWebKey jwk = new JsonWebKey
-				{
-					Kty = "RSA",
-					D = Base64UrlEncoder.Encode(rsaKeyInfo.D),
-					DP = Base64UrlEncoder.Encode(rsaKeyInfo.DP),
-					DQ = Base64UrlEncoder.Encode(rsaKeyInfo.DQ),
-					P = Base64UrlEncoder.Encode(rsaKeyInfo.P),
-					Q = Base64UrlEncoder.Encode(rsaKeyInfo.Q),
-					E = Base64UrlEncoder.Encode(rsaKeyInfo.Exponent),
-					N = Base64UrlEncoder.Encode(rsaKeyInfo.Modulus),
-					QI = Base64UrlEncoder.Encode(rsaKeyInfo.InverseQ)
-				};
+				//JsonWebKey jwk = new JsonWebKey
+				//{
+				//	Kty = "RSA",
+				//	D = Base64UrlEncoder.Encode(rsaKeyInfo.D),
+				//	DP = Base64UrlEncoder.Encode(rsaKeyInfo.DP),
+				//	DQ = Base64UrlEncoder.Encode(rsaKeyInfo.DQ),
+				//	P = Base64UrlEncoder.Encode(rsaKeyInfo.P),
+				//	Q = Base64UrlEncoder.Encode(rsaKeyInfo.Q),
+				//	E = Base64UrlEncoder.Encode(rsaKeyInfo.Exponent),
+				//	N = Base64UrlEncoder.Encode(rsaKeyInfo.Modulus),
+				//	QI = Base64UrlEncoder.Encode(rsaKeyInfo.InverseQ)
+				//};
 
 				return jwk;
 			}
@@ -102,24 +97,25 @@ namespace Arweave.NET.Lib.Crypto
 		}
 
 		public byte[] Sign(JsonWebKey jwk, byte[] data)
-		{
-			RSAParameters ppp = new RSAParameters
-			{
-				D = Base64UrlEncoder.DecodeBytes(jwk.D),
-				DP = Base64UrlEncoder.DecodeBytes(jwk.DP),
-				DQ = Base64UrlEncoder.DecodeBytes(jwk.DQ),
-				P = Base64UrlEncoder.DecodeBytes(jwk.P),
-				Q = Base64UrlEncoder.DecodeBytes(jwk.Q),
-				Exponent = Base64UrlEncoder.DecodeBytes(jwk.E),
-				Modulus = Base64UrlEncoder.DecodeBytes(jwk.N),
-				InverseQ = Base64UrlEncoder.DecodeBytes(jwk.QI)
-			};
+		{			
+
+			//RSAParameters ppp = new RSAParameters
+			//{
+			//	D = Base64UrlEncoder.DecodeBytes(jwk.D),
+			//	DP = Base64UrlEncoder.DecodeBytes(jwk.DP),
+			//	DQ = Base64UrlEncoder.DecodeBytes(jwk.DQ),
+			//	P = Base64UrlEncoder.DecodeBytes(jwk.P),
+			//	Q = Base64UrlEncoder.DecodeBytes(jwk.Q),
+			//	Exponent = Base64UrlEncoder.DecodeBytes(jwk.E),
+			//	Modulus = Base64UrlEncoder.DecodeBytes(jwk.N),
+			//	InverseQ = Base64UrlEncoder.DecodeBytes(jwk.QI)
+			//};
 
 			byte[] result;
 
 			using (RSA rsa = RSA.Create())
 			{
-				rsa.ImportParameters(ppp);
+				rsa.ImportParameters(jwk.ToRSAParameters());
 				rsa.KeySize = keyLength;
 
 				result = rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);

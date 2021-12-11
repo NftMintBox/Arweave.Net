@@ -41,11 +41,11 @@ namespace Arweave.NET
 		/// <param name="address">The arweave address to get the balance for.</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		public async Task<int> GetBalanceAsync(string address, CancellationToken cancellationToken = default)
+		public async Task<double> GetBalanceAsync(string address, CancellationToken cancellationToken = default)
 		{
-			ApiResponse<int> result = await api.Get<int>($"wallet/{address}/balance", cancellationToken);
+			ApiResponse<long> result = await api.Get<long>($"wallet/{address}/balance", cancellationToken);
 
-			return result.Data;
+			return (double)(result.Data/1000000000000.0);
 		}
 
 		public async Task<int> GetBalanceAsync(JsonWebKey wallet, CancellationToken cancellationToken = default)

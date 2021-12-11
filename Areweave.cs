@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Arweave.NET
 {
-	public class Arweave
+	public class ArweaveFactory
 	{
 		Api api;
 		public Wallets Wallets { get; private set; }
@@ -18,7 +18,7 @@ namespace Arweave.NET
 
 		public Silo Silo { get; private set; }
 
-		private Arweave(ApiConfig apiConfig)
+		private ArweaveFactory(ApiConfig apiConfig)
 		{
 			this.api = new Api(apiConfig);
 			Wallets = new Wallets(this.api, Crypto);
@@ -31,9 +31,9 @@ namespace Arweave.NET
 			//this.ar = new Ar();
 		}
 
-		public static Arweave Init(ApiConfig apiConfig)
+		public static ArweaveFactory Init(ApiConfig apiConfig)
 		{
-			return new Arweave(apiConfig);
+			return new ArweaveFactory(apiConfig);
 		}
 
 		public Config GetConfig()
